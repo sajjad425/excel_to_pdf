@@ -1,31 +1,38 @@
-# Import the win32com module
-from win32com import client 
+#import library
+import pandas as pd
+from reportlab.lib.pagesizes import letter
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
+from reportlab.lib.units import inch
 
-# Open Microsoft Excel
-excel = client.Dispatch("Excel.Application")
-
-# Make Excel visible (optional)
-excel.Visible = False
-
-# Path to the Excel file you want to convert
+# Path to the Excel file and PDF file
 excel_file_path = r'D:\Programming\Source Code\basic_info.xlsx'
+pdf_file_path = r'D:\Programming\Source Code\output9.pdf'
 
-# Path where the PDF will be saved
-pdf_file_path = r'D:\Programming\Source Code\output.pdf'
+# Load the Excel file
+df = pd.read_excel(excel_file_path)
 
-# Open the Excel file
-sheets = excel.Workbooks.Open(excel_file_path)
+# Convert DataFrame to list of lists (data)
+data = [df.columns.tolist()] + df.values.tolist()
 
-# Select the first worksheet (index 0)
-work_sheets = sheets.Worksheets[0]
+# Create a PDF document
+doc = SimpleDocTemplate(pdf_file_path, pagesize=letter)
 
-# Convert the worksheet to PDF
-work_sheets.ExportAsFixedFormat(0, pdf_file_path)
+# Create a table and apply styling
+table = Table(data)
+table.setStyle(TableStyle([
+    ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+    ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+    ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
+    ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+    ('GRID', (0, 0), (-1, -1), 1, colors.black),
+    ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+    ('FONTNAME', (0, 1), (-1, -1), 'Helvetica'),
+    ('FONTSIZE', (0, 0), (-1, -1), 10),
+    ('ALIGN', (0, 1), (-1, -1), 'CENTER'),
+]))
 
-# Close the Excel file
-sheets.Close(False)
+# Build the PDF document
+doc.build([table])
 
-# Quit the Excel application
-excel.Quit()
-
-print(f"Conversion complete! The PDF has been saved at: {pdf_file_path}")
+print(f"PDF generated successfully at: {pdf_file_path}")
